@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: midlink-task-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: midlink-task
+  template:
+    metadata:
+      labels:
+        app: midlink-task
+    spec:
+      containers:
+        - name: midlink-task-app
+          image: yelhadad/midlink-task
+          volumeMounts:
+            - mountPath: "/var/midlink-task"
+              name: log-directory
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          ports:
+            - name: flask
+              containerPort: 3000
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+      volumes:
+        - name: log-directory
+          persistentVolumeClaim:
+            claimName: midlink-task-pvc
